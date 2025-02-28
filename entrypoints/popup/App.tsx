@@ -2,8 +2,12 @@ import { useState, useEffect } from 'react';
 
 function App() {
     const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
-    const [selectedTab, setSelectedTab] = useState<string | undefined>(undefined);
-
+    const [selectedTab, setSelectedTab] = useState<string | undefined>(
+        undefined,
+    );
+    const [forms, setForms] = useState<
+        { id: string; action: string; fields: Record<string, string>[] }[]
+    >([]);
     useEffect(() => {
         chrome.tabs.query({}, (tabs) => {
             chrome.tabs.query(
@@ -13,10 +17,43 @@ function App() {
                         (tab) => tab.id !== currentTab[0].id,
                     );
                     setTabs(filteredTabs);
+                    if (!currentTab[0]?.id) {
+                        return;
+                    }
+                    detectForms(currentTab[0].id);
                 },
             );
         });
     }, []);
+
+    function detectForms(tabId: number) {
+        chrome.scripting.executeScript(
+            {
+                target: { tabId },
+                func: () => {
+                    const forms = Array.from(document.forms).map(
+                        (form, index) => ({
+                            id: form.id || index.toString(),
+                            action: form.action,
+                            fields: Array.from(form.elements).map((field) => ({
+                                id: field.id,
+                                name: (field as HTMLInputElement).name,
+                                type: (field as HTMLInputElement).type,
+                            })),
+                        }),
+                    );
+                    console.log('forms', forms);
+                    return forms;
+                },
+            },
+            (results) => {
+                if (!results[0].result) {
+                    return;
+                }
+                setForms(results[0].result);
+            },
+        );
+    }
 
     function handleTabSelect(event: React.ChangeEvent<HTMLSelectElement>) {
         setSelectedTab(event.target.value);
@@ -67,6 +104,19 @@ function App() {
                                 />
                             </svg>
                         </div>
+                    </div>
+
+                    <div className="border-b border-gray-900/10 pb-6">
+                        <h2 className="text-base/7 font-semibold text-gray-900">
+                            Forms Detected
+                        </h2>
+                        <ul className="mt-2 space-y-2">
+                            {forms.map((form) => (
+                                <li key={form.id} className={`p-2 rounded-md`}>
+                                    {form.id} - {form.action}
+                                </li>
+                            ))}
+                        </ul>
                     </div>
                 </div>
 
