@@ -4,7 +4,7 @@ import { Form, FormsList } from './components/FormsList';
 import { useFillForm } from './hooks/useFillForm';
 
 function App() {
-    const [selectedTab, setSelectedTab] = useState<string | undefined>(
+    const [selectedTab, setSelectedTab] = useState<number | undefined>(
         undefined,
     );
 
@@ -13,10 +13,6 @@ function App() {
     );
 
     const { fillForm, loading } = useFillForm();
-
-    function handleTabSelect(event: React.ChangeEvent<HTMLSelectElement>) {
-        setSelectedTab(event.target.value);
-    }
 
     function handleCancel() {
         window.close();
@@ -30,7 +26,7 @@ function App() {
     }
 
     return (
-        <div className="mx-auto min-w-lg max-w-7xl p-6">
+        <div className="mx-auto min-w-sm max-w-7xl p-6">
             <form onSubmit={handleSubmit}>
                 <div className="space-y-6">
                     <div className="border-b border-gray-900/10 pb-6">
@@ -46,7 +42,10 @@ function App() {
                         <h2 className="text-base/7 font-semibold text-gray-900">
                             Tabs Choice
                         </h2>
-                        <TabsSelect onSelect={handleTabSelect} />
+                        <TabsSelect
+                            selectedTab={selectedTab}
+                            setSelectedTab={setSelectedTab}
+                        />
                     </div>
 
                     <div className="border-b border-gray-900/10 pb-6">
@@ -71,7 +70,7 @@ function App() {
                     <button
                         type="submit"
                         className="rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        disabled={!selectedForm || !selectedTab || loading}
+                        disabled={!selectedForm || !selectedTab }
                     >
                         {loading ? 'Filling...' : 'Fill form'}
                     </button>

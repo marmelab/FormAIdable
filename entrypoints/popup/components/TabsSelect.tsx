@@ -1,14 +1,15 @@
 import React, { useState, useEffect } from 'react';
 
 interface TabsSelectProps {
-    onSelect: (e: React.ChangeEvent<HTMLSelectElement>) => void;
+    setSelectedTab: any;
+    selectedTab: number | undefined;
 }
 
-export const TabsSelect = ({ onSelect }: TabsSelectProps) => {
+export const TabsSelect = ({
+    selectedTab,
+    setSelectedTab,
+}: TabsSelectProps) => {
     const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
-    const [selectedTab, setSelectedTab] = useState<string | undefined>(
-        undefined,
-    );
 
     useEffect(() => {
         chrome.tabs.query({}, (tabs) => {
@@ -19,18 +20,22 @@ export const TabsSelect = ({ onSelect }: TabsSelectProps) => {
                         (tab) => tab.id !== currentTab[0].id,
                     );
                     setTabs(filteredTabs);
+                    setSelectedTab(filteredTabs[0]?.id);
                 },
             );
         });
     }, []);
 
     function handleTabSelect(event: React.ChangeEvent<HTMLSelectElement>) {
-        setSelectedTab(event.target.value);
-        onSelect(event);
+        setSelectedTab(Number(event.target.value));
     }
 
     if (!tabs.length) {
-        return <p className="mt-2 text-sm/2 text-gray-600">No other tabs detected</p>;
+        return (
+            <p className="mt-2 text-sm/2 text-gray-600">
+                No other tabs detected
+            </p>
+        );
     }
     return (
         <div className="mt-2 grid grid-cols-1">

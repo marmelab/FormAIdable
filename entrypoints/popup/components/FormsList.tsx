@@ -34,22 +34,42 @@ export const FormsList = ({
                         func: () => {
                             const forms = Array.from(document.forms).map(
                                 (form, index) => ({
-                                    id: form.getAttribute('id') || index.toString(),
+                                    id:
+                                        form.getAttribute('id') ||
+                                        index.toString(),
                                     action: form.action,
-                                    fields: Array.from(form.elements).map(
-                                        (field) => ({
-                                            id: field.id,
-                                            name: (field as HTMLInputElement)
-                                                .name,
-                                            type: (field as HTMLInputElement)
-                                                .type,
-                                            placeholder: (field as HTMLInputElement).placeholder,
-                                        }),
-                                    ),
+                                    fields: Array.from(form.elements)
+                                        .filter(
+                                            (
+                                                field,
+                                            ): field is HTMLInputElement =>
+                                                field instanceof
+                                                    HTMLInputElement && // Ensures only <input> elements
+                                                ![
+                                                    'radio',
+                                                    'checkbox',
+                                                    'file',
+                                                    'button',
+                                                    'submit',
+                                                    'reset',
+                                                    'hidden',
+                                                ].includes(field.type),
+                                        )
+                                        .map(
+                                            ({
+                                                id,
+                                                name,
+                                                type,
+                                                placeholder,
+                                            }) => ({
+                                                id,
+                                                name,
+                                                type,
+                                                placeholder,
+                                            }),
+                                        ),
                                 }),
                             );
-
-                            console.log('Detected forms', forms);
                             return forms;
                         },
                     },
