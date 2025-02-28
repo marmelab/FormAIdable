@@ -69,8 +69,10 @@ function App() {
                     </button>
                     <button
                         type="submit"
-                        className="rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        disabled={!selectedForm || !selectedTab }
+                        className={`rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed ${
+                            loading ? 'animate-pulse' : ''
+                        }`}
+                        disabled={!selectedForm || !selectedTab || loading}
                     >
                         {loading ? 'Filling...' : 'Fill form'}
                     </button>

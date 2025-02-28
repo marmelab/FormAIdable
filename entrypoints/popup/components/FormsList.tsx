@@ -42,9 +42,8 @@ export const FormsList = ({
                                         .filter(
                                             (
                                                 field,
-                                            ): field is HTMLInputElement =>
-                                                field instanceof
-                                                    HTMLInputElement && // Ensures only <input> elements
+                                            ): field is HTMLInputElement | HTMLTextAreaElement =>
+                                                (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
                                                 ![
                                                     'radio',
                                                     'checkbox',

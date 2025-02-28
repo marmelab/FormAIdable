@@ -109,7 +109,7 @@ const callOpenAIWithPrompt = async (
     }
 
     const completion = await openai.beta.chat.completions.parse({
-        model: 'gpt-4o-2024-08-06',
+        model: 'gpt-4o-mini-2024-07-18',
         messages: [
             { role: 'system', content: 'Extract the form field information.' },
             {

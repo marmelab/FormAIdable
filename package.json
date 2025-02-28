@@ -1,35 +1,39 @@
 {
-  "name": "tab2form",
-  "description": "manifest.json description",
-  "private": true,
-  "version": "0.0.0",
-  "type": "module",
-  "scripts": {
-    "dev": "wxt",
-    "dev:firefox": "wxt -b firefox",
-    "build": "wxt build",
-    "build:firefox": "wxt build -b firefox",
-    "zip": "wxt zip",
-    "zip:firefox": "wxt zip -b firefox",
-    "compile": "tsc --noEmit",
-    "postinstall": "wxt prepare"
-  },
-  "dependencies": {
-    "@tailwindcss/postcss": "^4.0.9",
-    "openai": "^4.86.1",
-    "postcss": "^8.5.3",
-    "react": "^19.0.0",
-    "react-dom": "^19.0.0",
-    "tailwindcss": "^4.0.9",
-    "zod": "^3.24.2"
-  },
-  "devDependencies": {
-    "@types/chrome": "^0.0.280",
-    "@types/react": "^19.0.1",
-    "@types/react-dom": "^19.0.2",
-    "@wxt-dev/module-react": "^1.1.2",
-    "autoprefixer": "^10.4.20",
-    "typescript": "^5.6.3",
-    "wxt": "^0.19.13"
-  }
+    "name": "tab2form",
+    "description": "Tab2Form enhances form interactions on web pages by enabling autocomplete functionality using data from another Chrome tab.",
+    "private": true,
+    "version": "0.0.1",
+    "type": "module",
+    "contributors": [
+        "Anthony RIMET",
+        "Marmelab"
+    ],
+    "scripts": {
+        "dev": "wxt",
+        "dev:firefox": "wxt -b firefox",
+        "build": "wxt build",
+        "build:firefox": "wxt build -b firefox",
+        "zip": "wxt zip",
+        "zip:firefox": "wxt zip -b firefox",
+        "compile": "tsc --noEmit",
+        "postinstall": "wxt prepare"
+    },
+    "dependencies": {
+        "@tailwindcss/postcss": "^4.0.9",
+        "openai": "^4.86.1",
+        "postcss": "^8.5.3",
+        "react": "^19.0.0",
+        "react-dom": "^19.0.0",
+        "tailwindcss": "^4.0.9",
+        "zod": "^3.24.2"
+    },
+    "devDependencies": {
+        "@types/chrome": "^0.0.280",
+        "@types/react": "^19.0.1",
+        "@types/react-dom": "^19.0.2",
+        "@wxt-dev/module-react": "^1.1.2",
+        "autoprefixer": "^10.4.20",
+        "typescript": "^5.6.3",
+        "wxt": "^0.19.13"
+    }
 }
