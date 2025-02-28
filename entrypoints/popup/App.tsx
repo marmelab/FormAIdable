@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { TabsSelect } from './components/TabsSelect';
 import { Form, FormsList } from './components/FormsList';
+import { useFillForm } from './hooks/useFillForm';
 
 function App() {
     const [selectedTab, setSelectedTab] = useState<string | undefined>(
@@ -11,6 +12,8 @@ function App() {
         undefined,
     );
 
+    const { fillForm, loading } = useFillForm();
+
     function handleTabSelect(event: React.ChangeEvent<HTMLSelectElement>) {
         setSelectedTab(event.target.value);
     }
@@ -19,9 +22,16 @@ function App() {
         window.close();
     }
 
+    async function handleSubmit(event: React.FormEvent) {
+        event.preventDefault();
+        if (selectedTab && selectedForm) {
+            await fillForm(selectedTab, selectedForm);
+        }
+    }
+
     return (
         <div className="mx-auto min-w-lg max-w-7xl p-6">
-            <form>
+            <form onSubmit={handleSubmit}>
                 <div className="space-y-6">
                     <div className="border-b border-gray-900/10 pb-6">
                         <h2 className="text-base/7 font-semibold text-gray-900">
@@ -61,9 +71,9 @@ function App() {
                     <button
                         type="submit"
                         className="rounded-md bg-amber-500 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-amber-700 focus-visible:outline focus-visible:outline-offset-2 focus-visible:outline-amber-600 disabled:bg-gray-300 disabled:cursor-not-allowed"
-                        disabled={!selectedForm || !selectedTab}
+                        disabled={!selectedForm || !selectedTab || loading}
                     >
-                        Fill form
+                        {loading ? 'Filling...' : 'Fill form'}
                     </button>
                 </div>
             </form>

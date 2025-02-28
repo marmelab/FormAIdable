@@ -43,6 +43,7 @@ export const FormsList = ({
                                                 .name,
                                             type: (field as HTMLInputElement)
                                                 .type,
+                                            placeholder: (field as HTMLInputElement).placeholder,
                                         }),
                                     ),
                                 }),
