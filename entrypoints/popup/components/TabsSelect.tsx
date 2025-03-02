@@ -12,8 +12,8 @@ export const TabsSelect = ({
     const [tabs, setTabs] = useState<chrome.tabs.Tab[]>([]);
 
     useEffect(() => {
-        chrome.tabs.query({}, (tabs) => {
-            chrome.tabs.query(
+        browser.tabs.query({}, (tabs) => {
+            browser.tabs.query(
                 { active: true, currentWindow: true },
                 (currentTab) => {
                     const filteredTabs = tabs.filter(

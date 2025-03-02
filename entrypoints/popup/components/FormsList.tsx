@@ -22,95 +22,37 @@ export const FormsList = ({
     }, []);
 
     function detectForms() {
-        chrome.tabs.query(
+        browser.tabs.query(
             { active: true, lastFocusedWindow: true },
-            function (selectedTab) {
+            async function (selectedTab) {
                 if (!selectedTab[0]?.id) {
                     return;
                 }
-                chrome.scripting.executeScript(
-                    {
-                        target: { tabId: selectedTab[0].id },
-                        func: () => {
-                            const forms = Array.from(document.forms).map(
-                                (form, index) => ({
-                                    id:
-                                        form.getAttribute('id') ||
-                                        index.toString(),
-                                    action: form.action,
-                                    fields: Array.from(form.elements)
-                                        .filter(
-                                            (
-                                                field,
-                                            ): field is HTMLInputElement | HTMLTextAreaElement =>
-                                                (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement) &&
-                                                ![
-                                                    'radio',
-                                                    'checkbox',
-                                                    'file',
-                                                    'button',
-                                                    'submit',
-                                                    'reset',
-                                                    'hidden',
-                                                ].includes(field.type),
-                                        )
-                                        .map(
-                                            ({
-                                                id,
-                                                name,
-                                                type,
-                                                placeholder,
-                                            }) => ({
-                                                id,
-                                                name,
-                                                type,
-                                                placeholder,
-                                            }),
-                                        ),
-                                }),
-                            );
-                            return forms;
-                        },
-                    },
-                    (results) => {
-                        if (!results[0].result) {
-                            return;
-                        }
-                        setForms(results[0].result);
-                    },
-                );
+                const results = await browser.scripting.executeScript({
+                    target: { tabId: selectedTab[0].id },
+                    func: findForms,
+                });
+
+                if (!results[0].result) {
+                    return;
+                }
+                setForms(results[0].result);
             },
         );
     }
 
     function highlightForm(form: Form) {
         setSelectedForm(form);
-        chrome.tabs.query(
+        browser.tabs.query(
             { active: true, lastFocusedWindow: true },
-            function (selectedTab) {
+            async function (selectedTab) {
                 if (!selectedTab[0]?.id) {
                     return;
                 }
-                chrome.scripting.executeScript({
+                await browser.scripting.executeScript({
                     target: { tabId: selectedTab[0].id },
-                    func: (formId) => {
-                        // Clear previous highlights
-                        Array.from(document.forms).forEach((form) => {
-                            form.style.border = '';
-                        });
-
-                        const form =
-                            document.getElementById(formId) ||
-                            document.forms[Number(formId)];
-                        if (form) {
-                            form.style.border = '2px solid yellow';
-                            form.scrollIntoView({
-                                behavior: 'smooth',
-                                block: 'center',
-                            });
-                        }
-                    },
                     args: [form.id],
+                    func: highlightFormById,
                 });
             },
         );
@@ -135,4 +77,51 @@ export const FormsList = ({
             ))}
         </ul>
     );
+};
+
+const highlightFormById = (formId: string) => {
+    // Clear previous highlights
+    Array.from(document.forms).forEach((form) => {
+        form.style.border = '';
+    });
+
+    const form =
+        document.getElementById(formId) || document.forms[Number(formId)];
+    if (form) {
+        form.style.border = '2px solid yellow';
+        form.scrollIntoView({
+            behavior: 'smooth',
+            block: 'center',
+        });
+    }
+};
+
+const findForms = () => {
+    const forms = Array.from(document.forms).map((form, index) => ({
+        id: form.getAttribute('id') || index.toString(),
+        action: form.action,
+        fields: Array.from(form.elements)
+            .filter(
+                (field): field is HTMLInputElement | HTMLTextAreaElement =>
+                    (field instanceof HTMLInputElement ||
+                        field instanceof HTMLTextAreaElement) &&
+                    ![
+                        'radio',
+                        'checkbox',
+                        'file',
+                        'button',
+                        'submit',
+                        'reset',
+                        'hidden',
+                    ].includes(field.type),
+            )
+            .map(({ id, name, type, placeholder }) => ({
+                id,
+                name,
+                type,
+                placeholder,
+            })),
+    }));
+
+    return forms;
 };

@@ -66,25 +66,17 @@ export function useFillForm() {
 }
 
 const getTabHtml = async (tabId: number): Promise<string> => {
-    return new Promise((resolve, reject) => {
-        chrome.scripting.executeScript(
-            {
-                target: { tabId: tabId },
-                func: () => {
-                    return document.body.outerHTML;
-                },
-            },
-            (results) => {
-                if (chrome.runtime.lastError) {
-                    reject(chrome.runtime.lastError);
-                } else if (!results || !results[0].result) {
-                    reject(new Error('No result returned'));
-                } else {
-                    resolve(results[0].result);
-                }
-            },
-        );
+    const result = await browser.scripting.executeScript({
+        target: { tabId: tabId },
+        func: () => {
+            return document.body.outerHTML;
+        },
     });
+    if (!result[0].result) {
+        throw new Error('No HTML found');
+    }
+
+    return result[0].result as string;
 };
 
 const sanitizeFormFields = (formFields: any[]): any[] => {
@@ -136,84 +128,77 @@ const fillFormWithEnrichedFields = async (
     selectedForm: Form,
     enrichedFields: EnrichedFields,
 ): Promise<boolean> => {
-    return new Promise((resolve, reject) => {
-        chrome.tabs.query(
-            { active: true, lastFocusedWindow: true },
-            function (selectedTab) {
-                if (!selectedTab[0]?.id) {
-                    return;
-                }
-                chrome.scripting.executeScript(
-                    {
-                        target: { tabId: selectedTab[0].id },
-                        func: (formId, enrichedFields) => {
-                            try {
-                                const form =
-                                    document.getElementById(formId as string) ??
-                                    document.forms[Number(formId)];
-
-                                if (!form) {
-                                    return false;
-                                }
-
-                                form.style.border = '';
-
-                                if (typeof enrichedFields === 'string') {
-                                    return false;
-                                }
-
-                                enrichedFields.formFields.forEach(
-                                    (enrichedField) => {
-                                        let currentFormField;
-                                        if (
-                                            enrichedField.id &&
-                                            enrichedField.id.trim() !== ''
-                                        ) {
-                                            const sanitizedId =
-                                                enrichedField.id.replace(
-                                                    /([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g,
-                                                    '\\$1',
-                                                );
-
-                                            currentFormField =
-                                                form.querySelector(
-                                                    `#${sanitizedId}`,
-                                                );
-                                        }
-
-                                        if (!currentFormField) {
-                                            currentFormField =
-                                                form.querySelector(
-                                                    `[name="${enrichedField.name}"]`,
-                                                );
-                                        }
-
-                                        if (currentFormField) {
-                                            (
-                                                currentFormField as HTMLInputElement
-                                            ).value =
-                                                enrichedField.associatedValue;
-                                        }
-                                    },
-                                );
-
-                                return true;
-                            } catch (error) {
-                                console.error('Error filling form:', error);
-                                return false;
-                            }
-                        },
-                        args: [selectedForm.id, enrichedFields],
-                    },
-                    (results) => {
-                        if (!results[0].result) {
-                            reject(new Error('Error filling form'));
-                        }
-
-                        resolve(true);
-                    },
-                );
-            },
-        );
+    const activeTabs = await browser.tabs.query({
+        active: true,
+        lastFocusedWindow: true,
     });
+
+    const tabId = activeTabs[0]?.id;
+
+    if (!tabId) {
+        throw new Error('No active tab found');
+    }
+
+    const results = await browser.scripting.executeScript({
+        target: { tabId: tabId },
+        func: (formId, enrichedFields) => {
+            try {
+                const form =
+                    document.getElementById(formId as string) ??
+                    document.forms[Number(formId)];
+
+                if (!form) {
+                    return false;
+                }
+
+                form.style.border = '';
+
+                if (typeof enrichedFields === 'string') {
+                    return false;
+                }
+
+                enrichedFields.formFields.forEach((enrichedField) => {
+                    let currentFormField;
+                    if (enrichedField.id && enrichedField.id.trim() !== '') {
+                        const sanitizedId = enrichedField.id.replace(
+                            /([ #;?%&,.+*~\':"!^$[\]()=>|\/@])/g,
+                            '\\$1',
+                        );
+
+                        currentFormField = form.querySelector(
+                            `#${sanitizedId}`,
+                        );
+                    }
+
+                    if (!currentFormField) {
+                        currentFormField = form.querySelector(
+                            `[name="${enrichedField.name}"]`,
+                        );
+                    }
+
+                    if (currentFormField) {
+                        const inputElement = currentFormField as HTMLInputElement;
+                        inputElement.value = enrichedField.associatedValue;
+
+                        // Dispatch input event to trigger any listeners 
+                        // Used for React controlled components. Thanks copilot!
+                        const event = new Event('input', { bubbles: true });
+                        inputElement.dispatchEvent(event);
+                    }
+                });
+
+                return true;
+            } catch (error) {
+                console.error('Error filling form:', error);
+                return false;
+            }
+        },
+        args: [selectedForm.id, enrichedFields],
+    });
+
+    if (!results[0].result) {
+        throw new Error('Error filling form');
+    }
+
+    return true;
 };
