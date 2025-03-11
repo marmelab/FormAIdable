@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Extension Options</title>
+        <link href="../../assets/tailwind.css" rel="stylesheet" />
+    </head>
+    <body class="bg-gray-100 p-4">
+        <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
+            <h1 class="text-2xl font-bold mb-4">Extension Options</h1>
+            <form id="options-form">
+                <div class="mb-4">
+                    <label
+                        for="openai-token"
+                        class="block text-sm font-medium text-gray-700"
+                        >OPENAI_KEY</label
+                    >
+                    <input
+                        type="text"
+                        id="openai-token"
+                        name="openai-token"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                    />
+                </div>
+                <div class="flex justify-end">
+                    <button
+                        type="submit"
+                        class="bg-amber-600 text-white px-4 py-2 rounded-md shadow-sm hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500"
+                    >
+                        Save
+                    </button>
+                </div>
+            </form>
+        </div>
+        <div
+            id="toast"
+            class="hidden fixed bottom-8 left-10 bg-green-500 text-white px-4 py-2 rounded-md shadow-md"
+        >
+            Settings saved successfully!
+        </div>
+        <script>
+            import { storage } from 'wxt/storage';
+
+            document
+                .getElementById('options-form')
+                .addEventListener('submit', async function (event) {
+                    event.preventDefault();
+                    const openAiToken =
+                        document.getElementById('openai-token').value;
+                    await storage.setItem('local:preference', {
+                        OPENAI_KEY: openAiToken,
+                    });
+                    showToast();
+                });
+
+            document.addEventListener('DOMContentLoaded', async function () {
+                const data = await storage.getItem('local:preference');
+                if (data && data.OPENAI_KEY) {
+                    document.getElementById('openai-token').value =
+                        data.OPENAI_KEY;
+                }
+            });
+
+            function showToast() {
+                const toast = document.getElementById('toast');
+                toast.classList.remove('hidden');
+                setTimeout(() => {
+                    toast.classList.add('hidden');
+                }, 3000);
+            }
+        </script>
+    </body>
+</html>

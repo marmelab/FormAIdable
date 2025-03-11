@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 
 const openai = new OpenAI({
-    apiKey: import.meta.env.VITE_OPENAI_KEY,
+    apiKey: 'placeholder-api-key',
     dangerouslyAllowBrowser: true,
 });
 
@@ -24,6 +24,18 @@ type EnrichedFields = z.infer<typeof EnrichedFieldsSchema>;
 
 export function useFillForm() {
     const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<Error | boolean>(false);
+
+    useEffect(() => {
+        async function fetchApiKey() {
+            const data = await storage.getItem('local:preference');
+            const preference = data as { OPENAI_KEY?: string };
+            if (preference?.OPENAI_KEY) {
+                openai.apiKey = preference.OPENAI_KEY;
+            }
+        }
+        fetchApiKey();
+    }, []);
 
     async function fillForm(
         selectedTab: number | undefined,
@@ -54,7 +66,9 @@ export function useFillForm() {
 
             // Step 4: Fill the form with the data
             await fillFormWithEnrichedFields(selectedForm, enrichedFields);
-        } catch (error) {
+            setError(false);
+        } catch (error: any) {
+            setError(error);
             console.error('Error filling form:', error);
             setLoading(false);
         } finally {
@@ -62,7 +76,7 @@ export function useFillForm() {
         }
     }
 
-    return { fillForm, loading };
+    return { fillForm, loading, error };
 }
 
 const getTabHtml = async (tabId: number): Promise<string> => {
@@ -177,10 +191,11 @@ const fillFormWithEnrichedFields = async (
                     }
 
                     if (currentFormField) {
-                        const inputElement = currentFormField as HTMLInputElement;
+                        const inputElement =
+                            currentFormField as HTMLInputElement;
                         inputElement.value = enrichedField.associatedValue;
 
-                        // Dispatch input event to trigger any listeners 
+                        // Dispatch input event to trigger any listeners
                         // Used for React controlled components. Thanks copilot!
                         const event = new Event('input', { bubbles: true });
                         inputElement.dispatchEvent(event);

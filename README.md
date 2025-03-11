@@ -1,6 +1,6 @@
-# Tab2Form
+# FormAIdable
 
-Tab2Form enhances form interactions on web pages by enabling autocomplete functionality using data from another Chrome tab.
+FormAIdable enhances form interactions on web pages by enabling autocomplete functionality using data from another Chrome tab.
 
 ![alt text](image.png)
 
@@ -16,11 +16,11 @@ Ensure you have **Node.js** and **npm** installed before proceeding.
 
 1. **Clone the repository:**
     ```sh
-    git clone https://github.com/yourusername/tab2form.git
+    git clone https://github.com/yourusername/formAIdable.git
     ```
 2. **Navigate to the project directory:**
     ```sh
-    cd tab2form
+    cd formAIdable
     ```
 3. **Install dependencies:**
     ```sh
@@ -54,7 +54,7 @@ This project is in its early stages, and several enhancements are needed:
 
 ## 🤝 Contributing
 
-We welcome contributions! Feel free to submit issues, suggestions, or pull requests to help improve Tab2Form.
+We welcome contributions! Feel free to submit issues, suggestions, or pull requests to help improve FormAIdable.
 
 ## 🛠️ Built With
 
