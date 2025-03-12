@@ -5,10 +5,17 @@ type TabsSelectProps = {
     setSelectedForm: any;
 };
 
+export type Field = {
+    id: string;
+    name: string;
+    type: string;
+    placeholder: string;
+};
+
 export type Form = {
     id: string;
     action: string;
-    fields: Record<string, string>[];
+    fields: Field[];
 };
 
 export const FormsList = ({

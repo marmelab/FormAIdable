@@ -1,8 +1,14 @@
 import { useState } from 'react';
 import { OpenAI } from 'openai';
-import { Form } from '@/entrypoints/popup/components/FormsList';
+import { Field, Form } from '@/entrypoints/popup/components/FormsList';
 import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
+
+export type Preferences = {
+    OPENAI_KEY?: string;
+    OPENAI_PROMPT?: string;
+    OPENAI_MODEL?: string;
+};
 
 const openai = new OpenAI({
     apiKey: import.meta.env.VITE_OPENAI_KEY || '',
@@ -29,7 +35,7 @@ export function useFillForm() {
     useEffect(() => {
         async function fetchApiKey() {
             const data = await storage.getItem('local:preference');
-            const preference = data as { OPENAI_KEY?: string };
+            const preference = data as Preferences;
             if (preference?.OPENAI_KEY) {
                 openai.apiKey = preference.OPENAI_KEY;
             }
@@ -45,20 +51,13 @@ export function useFillForm() {
             return;
         }
         setLoading(true);
+        
         try {
             // Step 1: Get all HTML from the selected tab
             const tabHtml = await getTabHtml(selectedTab);
-            // Step 2: Get all fields from the selected form
-            const formFields = selectedForm.fields.map((field) => ({
-                name: field.name,
-                placeholder: field.placeholder,
-                id: field.id,
-                type: field.type,
-                options: field.options,
-            }));
 
-            // sanitize form fields
-            const sanitizedFormFields = sanitizeFormFields(formFields);
+            // Step 2: sanitize form fields
+            const sanitizedFormFields = sanitizeFormFields(selectedForm.fields);
 
             // Step 3: Call an OpenAI prompt
             const enrichedFields: EnrichedFields = await callOpenAIWithPrompt(
@@ -95,7 +94,7 @@ const getTabHtml = async (tabId: number): Promise<string> => {
     return result[0].result as string;
 };
 
-const sanitizeFormFields = (formFields: any[]): any[] => {
+const sanitizeFormFields = (formFields: Field[]): Field[] => {
     // return formFields that has at least a name or a placeholder or an id
     return formFields.filter(
         (field) => field.name || field.placeholder || field.id,
@@ -104,7 +103,7 @@ const sanitizeFormFields = (formFields: any[]): any[] => {
 
 const callOpenAIWithPrompt = async (
     tabHtml: string,
-    formFields: any[],
+    formFields: Field[],
 ): Promise<any> => {
     // 1 token ~= 4 chars in English
     // cut tabHtml from being too long. We dont want to exceed 128000 tokens
@@ -118,10 +117,9 @@ const callOpenAIWithPrompt = async (
 
     // Get user prompt preference
     const data = await storage.getItem('local:preference');
-    console.log('Data:', data);
-    const preference = data as { OPENAI_KEY?: string; OPENAI_PROMPT?: string; OPENAI_MODEL?: string };
-    const prompt = preference.OPENAI_PROMPT || undefined;
-    const model = preference.OPENAI_MODEL || 'gpt-4o-mini-2024-07-18';
+    const preference = data as Preferences;
+    const prompt = preference?.OPENAI_PROMPT || undefined;
+    const model = preference?.OPENAI_MODEL || 'gpt-4o-mini-2024-07-18';
 
     const completion = await openai.beta.chat.completions.parse({
         model: model,
@@ -169,7 +167,6 @@ const callOpenAIWithPrompt = async (
     if (!enrichedFields) {
         throw new Error('No enriched fields found');
     }
-    console.log('Enriched fields:', enrichedFields);
     return enrichedFields as EnrichedFields;
 };
 
