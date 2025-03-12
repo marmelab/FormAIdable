@@ -2,7 +2,7 @@
 
 FormAIdable enhances form interactions on web pages by enabling autocomplete functionality using data from another Chrome tab.
 
-![alt text](image.png)
+![formAidable](image.png)
 
 ## 🚀 Features
 
@@ -43,6 +43,8 @@ You can enter a custom prompt to tailor the behavior of the form filling. This f
 By following these steps, you can easily set up and use the "FormAIdable" to automate form filling on web pages. If you encounter any issues, please refer to the troubleshooting section or contact support.
 
 
+![live example](demo-extension.gif)
+
 ## 📦 Installation 
 
 Ensure you have **Node.js** and **npm** installed before proceeding.
@@ -73,6 +75,8 @@ Start the development server with:
 ```sh
 npm run dev
 ```
+
+
 
 ## 🛠️ Planned Improvements
 
