@@ -38,7 +38,7 @@ const Popup = () => {
         browser.runtime.openOptionsPage();
     }
 
-    if (openAiKey === null) {
+    if (!import.meta.env.VITE_OPENAI_KEY && openAiKey === null) {
         return (
             <div className="mx-auto min-w-sm max-w-7xl p-6">
                 <form onSubmit={handleSubmit}>
