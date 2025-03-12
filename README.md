@@ -10,7 +10,40 @@ FormAIdable enhances form interactions on web pages by enabling autocomplete fun
 -   Supports `input` and `textarea` elements (more input types to be added)
 -   Lightweight and easy to integrate
 
-## 📦 Installation
+## 🛠️ Setup Instructions for End Users
+To use this extension, you need to configure it with your OpenAI API key, model, and an optional custom prompt. Follow these steps to set it up:
+
+1. **Install the Extension**:
+- Go to the browser extension store and install the "Form Filler Extension".
+
+2. **Open Extension Options**:
+- Click on the extension icon in your browser toolbar.
+- Select "Options" from the dropdown menu.
+
+3. **Configure API Key**:
+- In the options page, you will see a field labeled "OpenAI API Key".
+- Enter your OpenAI API key in this field. This key is required for the extension to function.
+
+4. **Select Model**:
+- In the options page, you will see a field labeled "OpenAI Model".
+- Enter the model you wish to use (e.g., gpt-4o-mini-2024-07-18).
+
+5. **Custom Prompt (Optional)**:
+In the options page, you will see a field labeled "Custom Prompt".
+You can enter a custom prompt to tailor the behavior of the form filling. This field is optional.
+
+6. **Save Settings**:
+- After entering the required information, click the "Save" button to store your settings.
+
+7. **Using the Extension**:
+- Navigate to the web page with the form you want to fill.
+- Click on the extension icon and select the form you want to autofill.
+- The extension will use the configured OpenAI API key and model to fetch data and fill the form.
+
+By following these steps, you can easily set up and use the "FormAIdable" to automate form filling on web pages. If you encounter any issues, please refer to the troubleshooting section or contact support.
+
+
+## 📦 Installation 
 
 Ensure you have **Node.js** and **npm** installed before proceeding.
 
@@ -45,12 +78,10 @@ npm run dev
 
 This project is in its early stages, and several enhancements are needed:
 
--   **Set OpenAI token via extension** for non-developers
 -   **Better form detection** for more accurate autofill
 -   **Support for standalone inputs** (not wrapped inside a `<form>`)
 -   **Handling all input types** beyond `input` and `textarea`
 -   **Codebase improvements** (initial version focused on speed, now refining quality)
--   **Compatibility with native and third-party form libraries** (e.g., `react-hook-form`)
 
 ## 🤝 Contributing
 

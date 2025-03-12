@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { zodResponseFormat } from 'openai/helpers/zod.mjs';
 
 const openai = new OpenAI({
-    apiKey: 'placeholder-api-key',
+    apiKey: import.meta.env.VITE_OPENAI_KEY || '',
     dangerouslyAllowBrowser: true,
 });
 
@@ -53,6 +53,8 @@ export function useFillForm() {
                 name: field.name,
                 placeholder: field.placeholder,
                 id: field.id,
+                type: field.type,
+                options: field.options,
             }));
 
             // sanitize form fields
@@ -114,19 +116,52 @@ const callOpenAIWithPrompt = async (
         tabHtml = tabHtml.substring(0, newLength);
     }
 
+    // Get user prompt preference
+    const data = await storage.getItem('local:preference');
+    console.log('Data:', data);
+    const preference = data as { OPENAI_KEY?: string; OPENAI_PROMPT?: string; OPENAI_MODEL?: string };
+    const prompt = preference.OPENAI_PROMPT || undefined;
+    const model = preference.OPENAI_MODEL || 'gpt-4o-mini-2024-07-18';
+
     const completion = await openai.beta.chat.completions.parse({
-        model: 'gpt-4o-mini-2024-07-18',
+        model: model,
         messages: [
-            { role: 'system', content: 'Extract the form field information.' },
+            {
+                role: 'system',
+                content: `Your task is to extract and associate relevant values for form fields from the given HTML.
+                
+                - **Match Priority:**  
+                  1. **Direct matches**: Use visible text, labels, placeholders, or default values.  
+                  2. **Context-based inference**: Use nearby elements, field naming conventions, and structure.  
+                  3. **Logical extrapolation**: If no clear match exists, intelligently infer values based on patterns, similar fields, or commonly associated data.  
+    
+                - **Flexibility:**  
+                  - Do not leave fields empty unless absolutely necessary.  
+                  - If multiple possible values exist, choose the **most relevant** based on context.  
+                  - If a field is ambiguous, make an educated guess rather than returning nothing.  
+    
+                - **Goal:**  
+                  Return a **complete** and **highly usable** autofill dataset, even if some fields require intelligent extrapolation.`,
+            },
             {
                 role: 'user',
-                content: `Find data that could correspond for the following fields in the HTML. Set it in associatedValue prop. If nothing seems to match, you can extrapolate with other data: ${JSON.stringify(
-                    formFields,
-                )}. HTML: ${tabHtml}`,
+                content: `Extract the most suitable values for these form fields from the given HTML.  
+    
+                - **If a direct match exists**, use it.  
+                - **If no direct match is found**, infer based on nearby text, labels, and structure.  
+                - **If necessary, extrapolate intelligently** from patterns in the document.  
+                ${prompt?.trim() ? `-**${prompt}` : undefined}
+
+                **Form Fields:**  
+                ${JSON.stringify(formFields)}  
+    
+                **HTML Document:**  
+                ${tabHtml}  
+                `,
             },
         ],
         response_format: zodResponseFormat(EnrichedFieldsSchema, 'formFields'),
-        temperature: 0.5,
+        temperature: 0.7, // Allows more creative extrapolation
         max_tokens: 3000,
     });
 

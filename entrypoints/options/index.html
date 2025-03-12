@@ -14,12 +14,42 @@
                     <label
                         for="openai-token"
                         class="block text-sm font-medium text-gray-700"
-                        >OPENAI_KEY</label
+                        >OPENAI_KEY (string)</label
                     >
                     <input
                         type="text"
                         id="openai-token"
                         name="openai-token"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                    />
+                </div>
+                <div class="mb-4">
+                    <label
+                        for="openai-model"
+                        class="block text-sm font-medium text-gray-700"
+                        >OPENAI_MODEL. (string)</label
+                    >
+
+                    <input
+                        type="text"
+                        id="openai-model"
+                        name="openai-model"
+                        placeholder="gpt-4o-mini-2024-07-18"
+                        class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
+                    />
+                </div>
+                <div class="mb-4">
+                    <label
+                        for="openai-prompt"
+                        class="block text-sm font-medium text-gray-700"
+                        >Add custom information to prompt (string)</label
+                    >
+
+                    <textarea
+                        type="text"
+                        id="openai-prompt"
+                        name="openai-prompt"
+                        placeholder="Ex: add 'hello' before each returned fields"
                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
                     />
                 </div>
@@ -48,17 +78,23 @@
                     event.preventDefault();
                     const openAiToken =
                         document.getElementById('openai-token').value;
+
+                    const openAiPrompt =
+                        document.getElementById('openai-prompt').value;
                     await storage.setItem('local:preference', {
                         OPENAI_KEY: openAiToken,
+                        OPENAI_PROMPT: openAiPrompt,
                     });
                     showToast();
                 });
 
             document.addEventListener('DOMContentLoaded', async function () {
                 const data = await storage.getItem('local:preference');
-                if (data && data.OPENAI_KEY) {
+                if (data && (data.OPENAI_KEY || data.OPENAI_PROMPT)) {
                     document.getElementById('openai-token').value =
                         data.OPENAI_KEY;
+                    document.getElementById('openai-prompt').value =
+                        data.OPENAI_PROMPT;
                 }
             });
 
