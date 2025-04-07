@@ -2,7 +2,7 @@
     "name": "formaidable",
     "description": "FormAIdable enhances form interactions on web pages by enabling autocomplete functionality using data from another Chrome tab.",
     "private": true,
-    "version": "0.0.1",
+    "version": "0.0.2",
     "type": "module",
     "contributors": [
         "Anthony RIMET",

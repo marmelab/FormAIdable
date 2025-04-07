@@ -44,14 +44,13 @@
                         class="block text-sm font-medium text-gray-700"
                         >Add custom information to prompt (string)</label
                     >
-
                     <textarea
                         type="text"
                         id="openai-prompt"
                         name="openai-prompt"
                         placeholder="Ex: add 'hello' before each returned fields"
                         class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-amber-500 focus:border-amber-500 sm:text-sm"
-                    />
+                    ></textarea>
                 </div>
                 <div class="flex justify-end">
                     <button
@@ -69,42 +68,6 @@
         >
             Settings saved successfully!
         </div>
-        <script>
-            import { storage } from 'wxt/storage';
-
-            document
-                .getElementById('options-form')
-                .addEventListener('submit', async function (event) {
-                    event.preventDefault();
-                    const openAiToken =
-                        document.getElementById('openai-token').value;
-
-                    const openAiPrompt =
-                        document.getElementById('openai-prompt').value;
-                    await storage.setItem('local:preference', {
-                        OPENAI_KEY: openAiToken,
-                        OPENAI_PROMPT: openAiPrompt,
-                    });
-                    showToast();
-                });
-
-            document.addEventListener('DOMContentLoaded', async function () {
-                const data = await storage.getItem('local:preference');
-                if (data && (data.OPENAI_KEY || data.OPENAI_PROMPT)) {
-                    document.getElementById('openai-token').value =
-                        data.OPENAI_KEY;
-                    document.getElementById('openai-prompt').value =
-                        data.OPENAI_PROMPT;
-                }
-            });
-
-            function showToast() {
-                const toast = document.getElementById('toast');
-                toast.classList.remove('hidden');
-                setTimeout(() => {
-                    toast.classList.add('hidden');
-                }, 3000);
-            }
-        </script>
+        <script src="./options.js" type="module"></script>
     </body>
 </html>
